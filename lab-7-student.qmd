@@ -1,9 +1,18 @@
 ---
 title: "Lab 7: Functions + Fish"
-author: "Your name here!"
-format: html
+author: "Ryan Chan"
+format: 
+  html:  
+    embed-resources: true
+    code-tools: true
+    toc: true
+    theme: lux
+code-fold: true
 editor: source
-embed-resources: true
+execute: 
+  echo: true
+  warning: false
+  error: true
 ---
 
 The goal of this lab is learn more about exploring missing data and writing
@@ -12,9 +21,17 @@ modular code.
 ```{r}
 #| label: setup
 
-
+library(here)
+library(tidyverse)
 ```
 
+```{r}
+#| label: load-data
+
+fish <- read_csv(here::here("data",
+                            "BlackfootFish.csv"),
+                 show_col_types = FALSE)
+```
 ## The Data
 
 This lab's data concerns mark-recapture data on four species of trout from the
@@ -45,12 +62,48 @@ measurement errors.
 ```{r}
 #| label: find-missing-values
 
+fish |>
+  summarise(na_rows = sum(if_any(everything(), 
+                                 is.na)),
+            across(.cols = -na_rows,
+                   .fns = ~anyNA(.x),
+                   .names = "{.col}_missing")) |>
+  pivot_longer(cols = everything())
+
 ```
 
 **2. Create ONE thoughtful visualization that explores the frequency of missing values across the different years, sections, and trips.**
 
 ```{r}
 #| label: visual-of-missing-values-over-time
+
+# Source for heatmap: https://chatgpt.com/c/67301b28-5100-800b-bcf6-56069ed890b0
+
+fish |>
+  # data cleaning
+  group_by(year, section, trip) |>
+  summarise(missing_vals = sum(if_any(everything(),
+                                      is.na)),
+            total_count = n(),
+            missing_perc = 100 * missing_vals / total_count,
+            .groups = "drop") |>
+  # plotting
+  ggplot(aes(x = year,
+             y = section,
+             fill = missing_perc)) +
+  geom_tile(color = "white") +
+  facet_wrap(~ trip) +
+  scale_fill_gradient(low = "white",
+                      high = "orange3",
+                      na.value = "gray") +
+  labs(title = "Missing Values in Blackfoot River Trout Data by Section and Trip Over Time",
+       x = "Year",
+       y = "",
+       subtitle = "Section",
+       fill = "Missing Values (%)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45,
+                                   hjust = 1))
 
 ```
 
@@ -84,6 +137,7 @@ understand the intent of the process. *Additionally, it can make it very difficu
 
 **3. What is the mistake I made in the above rescaling code?**
 
+The mistake can be seen in the line that rescales the weight variable. Instead of subtracting the max weight by the min weight, you subtracted by the min **length**. This wouldn't properly rescale, as the formula should use values from just the weight variable.
 
 When you find yourself copy-pasting lines of code, it's time to write a
 function, instead!
@@ -96,6 +150,17 @@ function, instead!
 ```{r}
 #| label: write-rescale-function
 
+rescale_01 <- function(vec){
+  # validate input vector
+  stopifnot("Error: Input vector must be numeric" = is.numeric(vec),
+            "Error: Input vector must contain more than one element" = length(x) > 1)
+  
+  min_val = min(vec,
+                na.rm = TRUE)
+  max_val = max(vec,
+                na.rm = TRUE)
+  return((vec - min_val) / (max_val - min_val))
+}
 ```
 
 ::: callout-tip
@@ -143,15 +208,23 @@ statement in order to create a `length_scaled` variable.
 
 ```{r}
 #| label: compare-original-with-rescaled-lengths
+#| layout: "l-screen-2"
 
 fish |>  
   ggplot(aes(x = length)) + 
-  geom_histogram(binwidth = 45) +
+  geom_histogram(binwidth = 45,
+                 fill = "steelblue") +
   labs(x = "Original Values of Fish Length (mm)") +
   scale_y_continuous(limits = c(0,4000))
 
 # Code for Q7 plot.
-
+fish |>
+  mutate(length_scaled = rescale_01(length)) |>
+  ggplot(aes(x = length_scaled)) +
+  geom_histogram(binwidth = 0.05,
+                 fill = "orange3") +
+  labs(x = "Rescaled Values of Fish Length (mm)") +
+  scale_y_continuous(limits = c(0,4000))
 ```
 
 ::: callout-tip
