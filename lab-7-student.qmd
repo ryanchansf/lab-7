@@ -208,7 +208,7 @@ statement in order to create a `length_scaled` variable.
 
 ```{r}
 #| label: compare-original-with-rescaled-lengths
-#| layout: "l-screen-2"
+#| layout-ncol: 2
 
 fish |>  
   ggplot(aes(x = length)) + 
@@ -257,6 +257,15 @@ section of R for Data Science!
 ```{r}
 #| label: rescale-data-frame-function
 
+rescale_column <- function(df, ...){
+  cols <- enquos(...)
+  
+  return(df |>
+    mutate(across(.cols = !!!cols,
+                  .fns = ~ rescale_01(.x),
+                  .names = "{.col}_scaled")))
+}
+
 ```
 
 **9. Use your `rescale_column()` function to rescale *both* the `length` and `weight` columns.**
@@ -267,5 +276,9 @@ I expect that you carry out this process by calling the `rescale_column()` funct
 
 ```{r}
 #| label: rescale-two-columns
+
+rescale_column(fish,
+               length,
+               weight)
 
 ```
