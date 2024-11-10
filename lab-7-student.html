@@ -3439,14 +3439,12 @@ Tip
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>rescale_column <span class="ot">&lt;-</span> <span class="cf">function</span>(df, ...){</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  cols <span class="ot">&lt;-</span> <span class="fu">enquos</span>(...)</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(df <span class="sc">|&gt;</span></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="at">.cols =</span> <span class="sc">!!!</span>cols,</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>                  <span class="at">.fns =</span> <span class="sc">~</span> <span class="fu">rescale_01</span>(.x),</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>                  <span class="at">.names =</span> <span class="st">&quot;{.col}_scaled&quot;</span>)))</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>rescale_column <span class="ot">&lt;-</span> <span class="cf">function</span>(df, cols){</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(df <span class="sc">|&gt;</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="at">.cols =</span> {{ cols }},</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">.fns =</span> rescale_01,</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">.names =</span> <span class="st">&quot;{.col}_scaled&quot;</span>)))</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p><strong>9. Use your <code>rescale_column()</code> function to rescale <em>both</em> the <code>length</code> and <code>weight</code> columns.</strong></p>
@@ -3467,33 +3465,24 @@ Warning
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rescale_column</span>(fish,</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>               length,</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>               weight)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>               <span class="fu">c</span>(length,</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>                 weight))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-error">
-<pre><code>Error in `mutate()`:
-ℹ In argument: `across(length, weight, .fns = ~rescale_01(.x), .names =
-  &quot;{.col}_scaled&quot;)`.
-Caused by error in `across()`:
-! Can&#39;t compute column `length_scaled`.
-Caused by error in `fn()`:
-! unused argument (c(175, 190, 245, 275, 300, 380, 170, 40, 80, 35, 35, 70, 100, 95, 60, 135, 145, 65, 50, 50, 95, 155, 65, 35, 90, 40, 35, 155, 10, 10, 60, 45, 130, 35, 45, 45, 40, 10, 50, 55, 105, 150, 60, 65, 70, 50, 50, 60, 10, 10, 45, 60, 40, 60, 15, 45, 45, 10, 160, 80, 70, 80, 25, 10, 40, 20, 35, 45, 25, 50, 70, 20, 50, 70, 45, 25, 70, 40, 70, 40, 45, 50, 40, 25, 45, 35, 25, 35, 10, 40, 40, 25, 30, 20, 20, 35, 25, 35, 30, 45, 30, 235, 115, 70, 25, 25, 95, 45, 50, 35, 40, 50, 35, 35, 10, 395, 295, 240, 
-155, 205, 160, 170, 115, 85, 120, 130, 90, 95, 75, 100, 130, 110, 95, 95, 55, 110, 70, 145, 110, 135, 70, 85, 110, 70, 115, 75, 55, 40, 65, 55, 55, 45, 45, 35, 55, 35, 30, 45, 25, 60, 35, 40, 35, 20, 40, 40, 40, 30, 60, 50, 35, 30, 25, 30, 35, 40, 30, 25, 15, 40, 30, 20, 45, 25, 10, 25, 20, 15, 25, 10, 10, 10, 10, 10, 10, 10, 10, 10, 15, 485, 455, 270, 250, 270, 270, 270, 160, 265, 195, 235, 170, 240, 170, 150, 60, 45, 85, 40, 55, 60, 80, 60, 45, 85, 110, 100, 40, 30, 40, 30, 40, 35, 45, 20, 30, 
-75, 60, 110, 120, 60, 10, 60, 80, 45, 40, 10, 25, 40, 40, 15, 30, 80, 60, 30, 15, 10, 20, 105, 15, 20, 50, 70, 25, 50, 10, 30, 10, 10, 10, 10, 15, 20, 10, 10, 525, 525, 295, 240, 290, 195, 395, 245, 265, 260, 225, 170, 425, 200, 270, 195, 185, 160, 140, 135, 85, 110, 65, 100, 55, 55, 50, 50, 110, 80, 35, 55, 60, 50, 75, 25, 40, 60, 20, 50, 50, 35, 35, 25, 20, 180, 255, 500, 350, 320, 230, 320, 565, 240, 280, 280, 270, 315, 205, 170, 230, 325, 205, 240, 320, 250, 270, 240, 315, 185, 180, 195, 170, 
-150, 205, 160, 180, 150, 120, 185, 150, 50, 130, 135, 100, 125, 50, 100, 155, 90, 85, 110, 95, 120, 140, 140, 150, 120, 50, 65, 65, 30, 55, 105, 50, 60, 55, 60, 50, 70, 30, 45, 40, 50, 35, 40, 70, 25, 40, 50, 40, 40, 55, 20, 30, 40, 25, 20, 20, 55, 30, 40, 20, 20, 20, 20, 25, 45, 40, 50, 25, 10, 10, 30, 10, 25, 10, 30, 10, 195, 170, 200, 170, 295, 140, 175, 185, 200, 160, 140, 135, 225, 140, 165, 115, 80, 110, 160, 70, 55, 55, 70, 50, 50, 60, 60, 60, 35, 40, 30, 40, 30, 50, 65, 70, 50, 85, 45, 90, 
-50, 50, 65, 30, 25, 120, 40, 55, 120, 75, 20, 25, 10, 10, 30, 140, 35, 40, 60, 65, 25, 20, 270, 295, 255, 325, 55, 110, 35, 180, 130, 145, 55, 55, 80, 45, 20, 30, 80, 45, 65, 35, 45, 50, 55, 70, 75, 140, 145, 65, 55, 30, 65, 50, 55, 50, 35, 135, 160, 45, 55, 25, 30, 35, 25, 40, 40, 20, 10, 10, 10, 55, 10, 25, 30, 50, 15, 30, 15, 50, 70, 45, 40, 25, 40, 25, 25, 10, 30, 35, 10, 10, NA, 140, 35, 125, 50, 35, 45, 110, 10, 15, 35, 30, 15, 50, 40, NA, 35, 30, 40, 25, 255, 55, 50, 20, 35, NA, 35, 50, 35, 
-95, 35, 105, 30, 25, 50, 35, 45, 25, 25, 45, 10, 45, 45, 45, 10, 15, NA, 40, 50, 35, 25, NA, 130, NA, NA, 85, 65, 305, 155, 60, 35, NA, NA, 55, 35, 360, 110, 20, 35, 35, 25, 30, 55, 35, NA, NA, 45, 40, 50, 35, 210, 50, 50, 40, NA, 110, 40, 45, 20, 45, 35, 30, 40, 50, 30, NA, NA, 45, 25, 30, 35, 20, 35, 35, 20, 90, 80, 10, 30, 140, 75, NA, 25, 25, 35, 40, NA, 25, 25, 25, 45, 25, 40, 10, 10, 20, 10, 10, 10, 10, 10, 1480, 600, NA, 350, 220, 260, 160, 215, 130, 150, 100, 90, NA, NA, NA, 160, 110, 65, 
-40, NA, 100, 75, NA, NA, 75, 80, 135, 55, 55, 75, 60, 120, 70, 60, NA, 140, 110, 60, NA, 50, 50, 60, NA, NA, 55, 75, 60, 75, 70, 60, 20, NA, NA, NA, 45, 50, 40, 40, 30, 35, 20, 40, 35, 25, NA, 50, NA, 25, 20, 35, 25, 20, 20, 15, 10, 20, 20, 15, 15, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, NA, NA, NA, NA, NA, 320, 350, 301, 420, 260, 475, 330, 310, 380, 380, 390, 560, 270, 240, 210, 235, 220, 230, 240, 120, 60, NA, 70, 160, 130, 160, NA, 130, 190, 170, 180, 130, NA, 130, 90, 120, 60, 130, 70, 
-70, 50, 180, 90, 70, 200, 80, NA, 100, 75, 70, 60, 120, 60, NA, 60, 75, 70, 75, 70, 75, 30, 30, 10, 10, 10, 415, NA, NA, 165, 225, 140, 240, 225, 210, 145, 105, 220, 110, 40, 110, 160, 80, 145, 60, NA, 135, 150, 145, 180, 150, 50, 40, 40, 70, NA, 80, 70, 50, 10, 90, 230, 50, 70, 45, 35, 20, 40, 20, 50, 80, 50, 45, 55, 55, 55, 60, 55, 45, 30, 20, 10, 10, NA, 40, 30, 30, 10, NA, 35, NA, 145, 270, NA, 265, 225, 225, 240, 190, 285, 190, 160, NA, 45, 70, 160, 35, 175, 85, 110, 55, 35, 60, 120, 75, 65, 
-60, 170, 180, 90, 75, NA, 60, 70, NA, NA, 55, 75, 25, 30, 35, NA, 25, 40, 20, 40, 10, NA, 10, 30, 20, 20, 30, 10, 35, 15, 10, 10, 10, NA, 310, 290, 230, 310, 195, 230, 440, 350, 210, NA, 240, 290, 175, 185, 160, 145, 165, 145, NA, 170, 90, 170, 125, 165, 170, 140, 105, 160, 105, 70, 70, 75, 95, 25, 140, 70, 65, 70, 70, 65, 75, 40, 60, 70, 80, NA, 45, 40, 35, 45, 45, 45, 65, 55, 70, 40, 50, 30, 50, 35, 35, 35, 35, 30, 20, 25, 50, 50, 65, 50, NA, 55, 40, 75, 20, 15, 20, 20, 10, 10, NA, NA, 390, 260, 
-165, 365, 150, 170, 80, 120, NA, 40, NA, 30, 45, 105, 195, 70, 10, 45, 90, 75, NA, 120, 40, 25, NA, 40, 50, 90, 10, 110, 30, 55, 40, 40, 40, 45, 40, 40, 35, 10, 10, 10, 25, 10, 10, 30, 40, 45, 60, NA, 25, 25, 10, 10, 10, 35, 30, 30, 20, 25, 15, 10, 10, 10, 10, NA, 185, 525, 320, 170, 165, 240, 250, 280, 230, 185, 130, 160, 160, 110, 135, 115, 50, 90, 145, 105, 140, 150, 295, 310, 40, 190, 255, 65, 160, 115, 45, 80, 50, 210, 110, 180, 70, 20, 60, 130, 35, 125, 40, 50, 125, 60, 150, 65, 110, 40, 85, 
-90, 270, 165, 100, 50, 75, 60, 60, 190, 250, 100, 40, 145, 65, 70, 60, 90, 75, 50, 70, 50, 70, 50, 15, 15, 60, 10, 60, 520, 140, 340, 410, 215, 260, 290, 180, 130, 105, 145, 190, 110, 160, 70, 170, 235, 55, 170, 115, 140, 150, 200, 125, 75, 110, 165, 115, 140, 80, 120, 70, 60, 160, 100, 90, 45, 50, 160, 140, 65, 95, 120, 110, 90, 90, 45, 60, 60, 45, 15, 10, 330, 250, 390, 430, 380, 290, 240, 190, 210, 250, 185, 310, 180, 220, 180, 130, 120, 160, 260, 125, 125, 140, 120, 160, 130, 80, 80, 100, 120, 
-95, 85, 80, 70, 60, 120, 110, 200, 90, 120, 180, 95, 120, 115, 60, 90, 100, 105, 130, 110, 70, 100, 80, 100, 90, 100, 75, 90, 120, 70, 50, 70, 60, 55, 70, 60, 60, 100, 70, 65, 50, 25, 50, 55, 60, 30, 40, 15, 20, 20, 10, 440, 410, 265, 310, 440, 250, 160, 180, 50, 90, 60, 165, 25, 145, 35, 190, 30, 200, 170, 175, 60, 125, 140, 30, 70, 240, 130, 40, 110, 65, 35, 60, 10, 70, 215, 180, 160, 110, 225, 130, 230, 230, 70, 70, 90, 75, 60, 340, 325, 55, 35, 90, 190, 200, 310, 10, 260, 90, 315, 60, 225, 140, 
-30, 90, 100, 80, 150, 100, 80, 110, 115, 130, 125, 190, 145, 150, 220, 70, 25, 30, 100, 45, 75, 40, 60, 20, 20, 20, NA, 20, 10, 400, 220, 215, 250, 170, 190, 370, 40, 235, 45, 85, 70, 180, 140, 180, 165, 215, 155, 105, 75, 165, 325, 160, 75, 90, 165, 85, 55, 85, 35, 70, 75, 80, 100, 245, 115, 15, 25, 55, 75, 225, 180, 155, 300, 65, 115, 15, 15, 10, 10, 10, 110, 155, 45, 90, 35, 40, 70, 65, 45, 115, 40, 20, 160, 140, 90, 35, 75, 140, 45, 60, 475, 185, 200, 225, 210, 200, 240, 150, 370, 125, 270, 210, 
-300, 210, 60, 95, 240, 325, 350, 225, 160, 360, 150, 120, 240, 130, 140, 240, 140, 85, 70, 260, 190, 190, 240, 240, 160, 175, 140, 175, 120, 90, 215, 145, 90, 150, 90, 80, 120, 105, 65, 60, 70, 110, 120, 120, 150, 55, 65, 70, 70, 85, 110, 70, 75, 55, 45, 50, 50, 65, 35, 55, 70, 35, 20, 10, 20, 10, 15, 20, 25, 20, 10, 145, 235, 100, 245, 210, 330, 220, 310, 170, 120, 140, 300, 350, 110, 60, 260, 260, 80, 80, 85, 55, 35, 60, 185, 145, 100, 145, 80, 170, 185, 75, 200, 70, 70, 10, 15, 55, 130, 140, 50, 
-70, 10, 60, 135, 300, 55, 240, 20, 70, 95, 270, 180, 165, 40, 240, 45, 50, 270, 145, 85, 325, 110, 270, 360, 300, 95, 60, 260, 385, 150, 260, 205, 185, 115, 195, 110, 200, 210, 175, 225, 195, 175, 195, 130, 60, 525, 260, 30, 120, 50, 30, 160, 110, 15, 50, 260, 280, 175, 240, 220, 340, 305, 200, 170, 75, 115, 35, 265, 90, 105, 110, 60, 70, 115, 120, 130, 25, 160, 225, 150, 70, 160, 30, 70, 155, 110, 175, 65, 110, 85, 60, 195, 100, 60, 90, 25, 25, 430, 200, 330, 260, 220, 240, 140, 180, 160, 140, 125, 
-90, 110, 110, 340, 220, 150, 115, 190, 230, 110, 120, 140, 130, 210, 145, 140, 100, 195, 80, 70, 160, 100, 75, 115, 100, 80, 160, 85, 60, 50, 50, 80, 70, 70, 70, 50, 40, 70, 40, 45, 50, 50, 60, 40, 20, NA, 90, 170, 270, 210, NA, 475, NA, 425, 170, 210, NA, NA, 300, NA, 250, 240, 260, 610, NA, NA, 210, NA, 165, NA, 205, 220, 175, NA, 65, 70, NA, 160, 120, 105, 140, NA, 160, NA, NA, 130, NA, 110, 120, 120, 120, 100, 105, 110, 110, NA, 115, 130, NA, 95, 100, NA, 100, 90, 95, 140, NA, 145, 100, 105, 
-115, 110, 115, 100, 140, 45, 120, 120, 120, NA, 95, NA, 75, 120, 85, 95, 80, NA, 75, 80, 80, NA, 80, 100, 60, 85, 65,</code></pre>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 18,352 × 9
+    trip  mark length weight  year section  species length_scaled weight_scaled
+   &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;           &lt;dbl&gt;         &lt;dbl&gt;
+ 1     1     0    288    175  1989 Johnsrud RBT             0.280       0.0374 
+ 2     1     0    288    190  1989 Johnsrud RBT             0.280       0.0406 
+ 3     1     0    285    245  1989 Johnsrud RBT             0.277       0.0524 
+ 4     1     0    322    275  1989 Johnsrud RBT             0.315       0.0588 
+ 5     1     0    312    300  1989 Johnsrud RBT             0.305       0.0641 
+ 6     1     0    363    380  1989 Johnsrud RBT             0.358       0.0812 
+ 7     1     0    269    170  1989 Johnsrud RBT             0.261       0.0363 
+ 8     1     0    160     40  1989 Johnsrud RBT             0.148       0.00855
+ 9     1     0    213     80  1989 Johnsrud RBT             0.203       0.0171 
+10     1     0    157     35  1989 Johnsrud RBT             0.145       0.00748
+# ℹ 18,342 more rows</code></pre>
 </div>
 </div>
 <!-- -->
@@ -4221,31 +4210,29 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb16-275"><a href="#cb16-275" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb16-276"><a href="#cb16-276" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: rescale-data-frame-function</span></span>
 <span id="cb16-277"><a href="#cb16-277" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-278"><a href="#cb16-278" aria-hidden="true" tabindex="-1"></a>rescale_column <span class="ot">&lt;-</span> <span class="cf">function</span>(df, ...){</span>
-<span id="cb16-279"><a href="#cb16-279" aria-hidden="true" tabindex="-1"></a>  cols <span class="ot">&lt;-</span> <span class="fu">enquos</span>(...)</span>
-<span id="cb16-280"><a href="#cb16-280" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb16-281"><a href="#cb16-281" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(df <span class="sc">|&gt;</span></span>
-<span id="cb16-282"><a href="#cb16-282" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="at">.cols =</span> <span class="sc">!!!</span>cols,</span>
-<span id="cb16-283"><a href="#cb16-283" aria-hidden="true" tabindex="-1"></a>                  <span class="at">.fns =</span> <span class="sc">~</span> <span class="fu">rescale_01</span>(.x),</span>
-<span id="cb16-284"><a href="#cb16-284" aria-hidden="true" tabindex="-1"></a>                  <span class="at">.names =</span> <span class="st">&quot;{.col}_scaled&quot;</span>)))</span>
-<span id="cb16-285"><a href="#cb16-285" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb16-278"><a href="#cb16-278" aria-hidden="true" tabindex="-1"></a>rescale_column <span class="ot">&lt;-</span> <span class="cf">function</span>(df, cols){</span>
+<span id="cb16-279"><a href="#cb16-279" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(df <span class="sc">|&gt;</span></span>
+<span id="cb16-280"><a href="#cb16-280" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="at">.cols =</span> {{ cols }},</span>
+<span id="cb16-281"><a href="#cb16-281" aria-hidden="true" tabindex="-1"></a>                  <span class="at">.fns =</span> rescale_01,</span>
+<span id="cb16-282"><a href="#cb16-282" aria-hidden="true" tabindex="-1"></a>                  <span class="at">.names =</span> <span class="st">&quot;{.col}_scaled&quot;</span>)))</span>
+<span id="cb16-283"><a href="#cb16-283" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb16-284"><a href="#cb16-284" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-285"><a href="#cb16-285" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb16-286"><a href="#cb16-286" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-287"><a href="#cb16-287" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb16-287"><a href="#cb16-287" aria-hidden="true" tabindex="-1"></a>**9. Use your `rescale_column()` function to rescale *both* the `length` and `weight` columns.**</span>
 <span id="cb16-288"><a href="#cb16-288" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-289"><a href="#cb16-289" aria-hidden="true" tabindex="-1"></a>**9. Use your `rescale_column()` function to rescale *both* the `length` and `weight` columns.**</span>
-<span id="cb16-290"><a href="#cb16-290" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-291"><a href="#cb16-291" aria-hidden="true" tabindex="-1"></a>::: callout-warning</span>
-<span id="cb16-292"><a href="#cb16-292" aria-hidden="true" tabindex="-1"></a>I expect that you carry out this process by calling the <span class="in">`rescale_column()`</span> function only ONE time!</span>
-<span id="cb16-293"><a href="#cb16-293" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb16-294"><a href="#cb16-294" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-297"><a href="#cb16-297" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb16-298"><a href="#cb16-298" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: rescale-two-columns</span></span>
-<span id="cb16-299"><a href="#cb16-299" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-300"><a href="#cb16-300" aria-hidden="true" tabindex="-1"></a><span class="fu">rescale_column</span>(fish,</span>
-<span id="cb16-301"><a href="#cb16-301" aria-hidden="true" tabindex="-1"></a>               length,</span>
-<span id="cb16-302"><a href="#cb16-302" aria-hidden="true" tabindex="-1"></a>               weight)</span>
-<span id="cb16-303"><a href="#cb16-303" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-304"><a href="#cb16-304" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb16-289"><a href="#cb16-289" aria-hidden="true" tabindex="-1"></a>::: callout-warning</span>
+<span id="cb16-290"><a href="#cb16-290" aria-hidden="true" tabindex="-1"></a>I expect that you carry out this process by calling the <span class="in">`rescale_column()`</span> function only ONE time!</span>
+<span id="cb16-291"><a href="#cb16-291" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb16-292"><a href="#cb16-292" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-295"><a href="#cb16-295" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb16-296"><a href="#cb16-296" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: rescale-two-columns</span></span>
+<span id="cb16-297"><a href="#cb16-297" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-298"><a href="#cb16-298" aria-hidden="true" tabindex="-1"></a><span class="fu">rescale_column</span>(fish,</span>
+<span id="cb16-299"><a href="#cb16-299" aria-hidden="true" tabindex="-1"></a>               <span class="fu">c</span>(length,</span>
+<span id="cb16-300"><a href="#cb16-300" aria-hidden="true" tabindex="-1"></a>                 weight))</span>
+<span id="cb16-301"><a href="#cb16-301" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-302"><a href="#cb16-302" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
