@@ -1,18 +1,36 @@
 ---
 title: "Challenge 7: Incorporating Multiple Inputs"
 subtitle: "Functions + Fish"
-author: "Your name here!"
-format: html
+author: "Ryan Chan"
+format: 
+  html:  
+    embed-resources: true
+    code-tools: true
+    toc: true
+    theme: lux
+code-fold: true
 editor: source
-embed-resources: true
+execute: 
+  echo: true
+  warning: false
+  error: true
 ---
 
 ```{r}
 #| label: setup
 
+library(here)
+library(tidyverse)
 
 ```
 
+```{r}
+#| label: load-data
+
+fish <- read_csv(here::here("data",
+                            "BlackfootFish.csv"),
+                 show_col_types = FALSE)
+```
 ## Condition Index
 
 A frequently used measurement for fish health is a condition index [(Wikipedia article)](https://en.wikipedia.org/wiki/Condition_index_in_fish). The following
@@ -25,6 +43,9 @@ $$\text{condition index} = \frac{weight}{length^3} \times 100$$
 
 ```{r}
 #| label: transform-data-to-have-correct-units
+
+fish <- fish |>
+  mutate(length = length / 10) # divide by 10 to convert to cm
 
 ```
 
@@ -43,6 +64,12 @@ If you are struggling with the structure of your function, I would suggest readi
 ```{r}
 #| label: function-to-change-impossible-measurements-to-NA
 
+filter_measurements <- function(vec, lower, upper){
+  return(ifelse(vec >= lower & vec <= upper,
+                vec,
+                NA))
+}
+
 ```
 
 **3. After consulting the [Montana Record Table](https://fwp.mt.gov/fish/anglingData/records) for the four species of trout included in these data, I have conjectured that it is unlikely to have measurements for fish below 5 cm and above 80 cm in length or below 10 g and above 4,000 g in weight. Use your function to modify the `length` and `weight` columns of the `fish` dataset based on my cutoffs.**
@@ -50,9 +77,13 @@ If you are struggling with the structure of your function, I would suggest readi
 ```{r}
 #| label: modify-impossible-values-of-length-weight
 
+fish <- fish |>
+  mutate(length = filter_measurements(length, lower = 5, upper = 80),
+         weight = filter_measurements(weight, lower = 10, upper = 4000))
+
 ```
 
-**3. Write a function to calculate the condition index of a fish, given inputs of weight and length.**
+**4. Write a function to calculate the condition index of a fish, given inputs of weight and length.**
 
 ::: callout-warning
 Consider whether you will write a function that works with vectors (accepting
@@ -63,9 +94,13 @@ dataset and variable names as inputs)!
 ```{r}
 #| label: condition-function
 
+condition_index <- function(length, weight){
+  return(100 * (weight / (length^3)))
+}
+
 ```
 
-**4. Make a thoughtful visualization of how fish conditions have varied over the duration of this study.**
+**5. Make a thoughtful visualization of how fish conditions have varied over the duration of this study.**
 
 ::: callout-warning
 ### To be thoughtful...
@@ -76,4 +111,29 @@ dataset and variable names as inputs)!
 ```{r}
 #| label: condition-indices-over-time
 
+fish |>
+  # calculate condition indices for fish
+  mutate(condition_index = condition_index(length,
+                                           weight)) |>
+  filter(!is.na(condition_index)) |>
+  # plot condition index over time by species
+  ggplot(aes(x = year, 
+             y = condition_index, 
+             color = species)) +
+  geom_jitter(alpha = 0.5) +
+  geom_smooth(method = "loess", 
+              se = FALSE, 
+              size = 0.8) +
+  labs(title = "Blackfoot River Trout Condition Index Over Time by Species",
+       x = "Year",
+       y = "",
+       subtitle = "Condition Index",
+       color = "Species") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, 
+                                   hjust = 1),
+        legend.position = "bottom") +
+  facet_wrap(~ species, 
+             scales = "free_y")  # facet by species
 ```
+Across the study period from 1989 to 2006, condition indices for all four trout species in the Blackfoot River have remained relatively stable. For brown trout, the condition index shows moderate variability with a higher condition index value, with most values concentrated between 0 and 10. Bull trout look to have a smaller range in condition index values, primarily between 0.5 and 2. This demonstrates an even more consistent condition over time with minimal fluctuations. Rainbow trout exhibit the highest variability of condition over time, with condition indices reaching values above 30. Despite the high variability, there doesn't seem to be an apparent trend over time. Finally, the West Slope Cutthroat Trout also show some variability, although less prominent than rainbow trout, and their trend implies stable overall conditions. 
